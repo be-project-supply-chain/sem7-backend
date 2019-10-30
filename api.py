@@ -244,9 +244,9 @@ def home():
         
     }
     return jsonify(d)
-
-
-
+@app.route("/",methods=['GET'])
+def h1():
+    return jsonify({"message":"API fetched"})
 
 if __name__ == "__main__":
     app.debug = True
