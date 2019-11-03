@@ -8,6 +8,7 @@ app = Flask(__name__)
 app.config["DEBUG"] = True
 loaded_model1 = pickle.load(open("model1.sav", "rb"))
 loaded_model2 = pickle.load(open("model2.sav", "rb"))
+loaded_model3 = pickle.load(open("fuzzy.sav","rb"))
 CORS(app)
 
 symptoms_dict = {
@@ -178,20 +179,20 @@ lifestyle_disease_dict={    1: 'Mental illness',
                     3: 'Stroke',
                     4: 'atherosclerosis', 
                     5: 'Obesity', 
-                    6: 'Cirrhosis', 
-                    7: 'Cancer', 
+                    # 6: 'Cirrhosis', 
+                    # 7: 'Cancer', 
                     8: 'Heart Disease', 
                     9: 'High Blood Pressure', 
                     10: 'Type-II Diabetes', 
-                    11: "Alzheimer's disease", 
-                    12: 'Arthritis', 
-                    13: 'Atherosclerosis', 
+                    # 11: "Alzheimer's disease", 
+                    # 12: 'Arthritis', 
+                    # 13: 'Atherosclerosis', 
                     14: 'Asthma', 
                     15: 'Chronic obstructive pulmonary disease', 
                     16: 'Metabolic syndrome', 
                     17: 'Chronic renal failure ', 
                     18: 'Osteoporosis', 
-                    19: 'Swimmerâ\x80\x99s ear', 
+                    19: "Swimmer's ear", 
                     20: 'Nephritis', 
                     21: 'Eye Pain'
                     
@@ -244,9 +245,14 @@ def home():
         
     }
     return jsonify(d)
-@app.route("/",methods=['GET'])
+@app.route("/",methods=['POST'])
 def h1():
-    return jsonify({"message":"API fetched"})
+    d1=request.json
+    loaded_model3.input['quality']=d1['quality']
+    loaded_model3.input['service']=d1['service']
+    loaded_model3.compute()
+    t=loaded_model3.output['tip']
+    return jsonify({"tip":t})
 
 if __name__ == "__main__":
     app.debug = True
