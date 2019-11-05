@@ -4,6 +4,8 @@ import numpy as np
 import pickle
 
 
+from temp import outmain
+
 app = Flask(__name__)
 app.config["DEBUG"] = True
 loaded_model1 = pickle.load(open("model1.sav", "rb"))
@@ -198,25 +200,7 @@ lifestyle_disease_dict={    1: 'Mental illness',
                     
                 }
 
-treatment_dict={
-    "Mental illness":[
-        "Stick to your treatment plan. Don't skip therapy sessions. Even if you're feeling better, don't skip your medications. If you stop, symptoms may come back. And you could have withdrawal-like symptoms if you stop a medication too suddenly. If you have bothersome drug side effects or other problems with treatment, talk to your doctor before making changes",
-        "Avoid alcohol and drug use. Using alcohol or recreational drugs can make it difficult to treat a mental illness. If you're addicted, quitting can be a real challenge. If you can't quit on your own, see your doctor or find a support group to help you.",
-        "Stay active. Exercise can help you manage symptoms of depression, stress and anxiety. Physical activity can also counteract the effects of some psychiatric medications that may cause weight gain. Consider walking, swimming, gardening or any form of physical activity that you enjoy. Even light physical activity can make a difference",
-        "Don't make important decisions when your symptoms are severe Avoid decision-making when you're in the depth of mental illness symptoms, since you may not be thinking clearly."
-        "Determine priorities. You may reduce the impact of your mental illness by managing time and energy. Cut back on obligations when necessary and set reasonable goals. Give yourself permission to do less when symptoms are worse. You may find it helpful to make a list of daily tasks or use a planner structure your time and stay organized"
-        "Learn to adopt a positive attitude. Focusing on the positive things in your life can make your life better and may even improve your health. Try to accept changes when they occur, and keep problems in perspective. Stress management techniques, including relaxation methods, may help"]
-    # "Back Pain":
-    # "Stroke":
-    # "atherosclerosis":
-    # "Obesity":
-    # "Cirrhosis":
-    # "Cancer":
-    # "Heart Disease":
-    # "High Blood Pressure":
-    # "Type-II Diabetes":
 
-}
 @app.route("/disease",methods =['POST'])
 def home():
     
@@ -224,26 +208,24 @@ def home():
     symp = []
     data=request.json
     symptoms = data["symptoms"]
-    lifestyle = data["lifestyle"] 
+    lifestyle = data["lifestyle"]
+
     # print(symptoms)
 
     for symptom in symptoms:
-        print(symptoms_dict[symptom])
+        # print(symptoms_dict[symptom])
         symp.append(symptoms_dict[symptom])
 
     input_vector1[symp] = 1
 
-    input_vector2 = np.zeros(25)
-    symp = []
-    for symptom in lifestyle:
-        print(lifestyle_symptoms_dict[symptom])
-        symp.append(lifestyle_symptoms_dict[symptom])
-    input_vector2[symp] = 1
+    lr=outmain(lifestyle)
+
     d={
         "symptom_disease":loaded_model1.predict([input_vector1])[0],
-        "lifestyle_disease":lifestyle_disease_dict[loaded_model2.predict([input_vector2])[0]]
+        "lifestyle_disease":lr
         
     }
+    print(d)
     return jsonify(d)
 @app.route("/",methods=['POST'])
 def h1():
